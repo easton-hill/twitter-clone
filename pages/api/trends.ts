@@ -1,14 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { Trend } from '../../utils'
 
 const US_WOED = 23424977;
-
-interface Trend {
-  name: string;
-  url: string;
-  query: string;
-  promoted_content?: string;
-  tweet_volume: number;
-}
 
 type Data = {
   trends: Trend[]
