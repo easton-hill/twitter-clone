@@ -25,9 +25,11 @@ const Home: NextPage = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      {trends.length > 0 && trends.map((trend: Trend) => (
-        <TrendCard key={trend.name} trend={trend} />
-      ))}
+      <div className='mx-auto my-8 w-2/4 max-w-2xl bg-med-blue'>
+        {trends.length > 0 && trends.map((trend: Trend) => (
+          <TrendCard key={trend.name} trend={trend} />
+        ))}
+      </div>
     </div>
   )
 }
