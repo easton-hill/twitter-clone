@@ -91,3 +91,20 @@ export const formatNumber = (n: number): string => {
     return n.toString();
   }
 }
+
+export const getElapsedTime = (timestamp: string): string => {
+  const prevTime = new Date(timestamp).getTime()
+  const currentTime = new Date().getTime()
+  const minutesElapsed = Math.round((currentTime - prevTime) / 60000)
+
+  // depending on how much time has elapsed, we are returning either: minutes, hours, days, or the date
+  if (minutesElapsed < 60) {
+    return `${minutesElapsed}m ago`;
+  } else if (minutesElapsed < 1440) {
+    return `${Math.floor(minutesElapsed / 60)}h ago`;
+  } else if (minutesElapsed < 10080) {
+    return `${Math.floor(minutesElapsed / 1440)}d ago`;
+  } else {
+    return `${new Date(timestamp).toLocaleDateString("en-US")}`;
+  }
+}
