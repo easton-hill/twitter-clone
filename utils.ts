@@ -45,7 +45,22 @@ export interface TwitterTweet {
     like_count: number;
     reply_count: number; 
   }
-  entities?: Object;
+  entities?: {
+    annotations?: Array<Object>;
+    cashtages?: Array<Object>;
+    hashtags?: Array<Object>;
+    mentions?: Array<Object>;
+    urls?: Array<Object>;
+  }
+  attachments?: {
+    media_keys: Array<string>;
+  }
+  referenced_tweets?: [
+    {
+      type: string;
+      id: string;
+    }
+  ]
   conversation_id: string;
   created_at:string;
   text: string;
