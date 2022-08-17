@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { Trend } from '../utils'
+import TrendCard from '../components/TrendCard'
 
 const Home: NextPage = () => {
   const [trends, setTrends] = useState([]);
@@ -25,7 +26,7 @@ const Home: NextPage = () => {
       </Head>
 
       {trends.length > 0 && trends.map((trend: Trend) => (
-        <h2 key={trend.name}>{trend.name} - {trend.tweet_volume}</h2>
+        <TrendCard key={trend.name} trend={trend} />
       ))}
     </div>
   )
