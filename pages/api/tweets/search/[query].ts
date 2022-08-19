@@ -58,6 +58,11 @@ export default async function handler(
       (user: TwitterUser) => user.id === quotedTweetObject?.author_id
     )
 
+    // remove the referenced tweet link from the text of the original tweet - it will always be the last link
+    if (quotedTweetId) {
+      twitterTweet.text = twitterTweet.text.replace(/\s?https:\/\/t\.co\/\w+$/, "");
+    }
+
     const tweet: Tweet = {
       id: twitterTweet.id,
       created_at: twitterTweet.created_at,
