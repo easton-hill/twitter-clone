@@ -1,8 +1,8 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useState, useEffect } from 'react'
-import { Trend } from '../utils'
-import TrendCard from '../components/TrendCard'
+import { Trend } from 'utils'
+import Trending from '../components/Trending'
 
 const Home: NextPage = () => {
   const [trends, setTrends] = useState([]);
@@ -15,7 +15,7 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    getTrends()
+    getTrends();
   }, []);
 
   return (
@@ -25,10 +25,8 @@ const Home: NextPage = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <div className='mx-auto my-8 w-2/4 max-w-2xl bg-med-blue'>
-        {trends.length > 0 && trends.map((trend: Trend) => (
-          <TrendCard key={trend.name} trend={trend} />
-        ))}
+        <div className='mx-auto my-8 w-2/4 max-w-2xl bg-med-blue'>
+        {trends.length > 0 && <Trending trends={trends} />}
       </div>
     </div>
   )
