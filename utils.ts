@@ -30,7 +30,7 @@ export interface Tweet {
       tweet_count: number;
     }
   }
-  referenced_tweets?: Object;
+  quoted_tweet?: Tweet;
   mentions?: Object;
   media?: Object;
 }
@@ -55,12 +55,10 @@ export interface TwitterTweet {
   attachments?: {
     media_keys: Array<string>;
   }
-  referenced_tweets?: [
-    {
-      type: string;
-      id: string;
-    }
-  ]
+  referenced_tweets?: {
+    type: string;
+    id: string;
+  }[]
   conversation_id: string;
   created_at:string;
   text: string;

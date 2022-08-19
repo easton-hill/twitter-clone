@@ -48,6 +48,16 @@ export default async function handler(
       (user: TwitterUser) => user.id === twitterTweet.author_id
     )
 
+
+    // there should only be one referenced tweet - the quoted tweet - as we are excluding replies/retweets
+    const quotedTweetId = twitterTweet.referenced_tweets?.[0]?.id
+    const quotedTweetObject: TwitterTweet = json.includes?.tweets.find(
+      (tweet: TwitterTweet) => tweet.id === quotedTweetId
+    )
+    const quotedTweetUserObject: TwitterUser = json.includes.users.find(
+      (user: TwitterUser) => user.id === quotedTweetObject?.author_id
+    )
+
     const tweet: Tweet = {
       id: twitterTweet.id,
       created_at: twitterTweet.created_at,
@@ -71,40 +81,39 @@ export default async function handler(
           following_count: userObject.public_metrics.following_count,
           tweet_count: userObject.public_metrics.tweet_count,
         }
-      }
+      },
+      ...(quotedTweetId && {
+        quoted_tweet: {
+          id: quotedTweetObject.id,
+          created_at: quotedTweetObject.created_at,
+          text: quotedTweetObject.text,
+          conversation_id: quotedTweetObject.conversation_id,
+          reply_setting: quotedTweetObject.reply_settings,
+          metrics: {
+            retweet_count: quotedTweetObject.public_metrics.retweet_count,
+            quote_count: quotedTweetObject.public_metrics.quote_count,
+            like_count: quotedTweetObject.public_metrics.like_count,
+            reply_count: quotedTweetObject.public_metrics.reply_count,
+          },
+          author: {
+            id: quotedTweetUserObject.id,
+            username: quotedTweetUserObject.username,
+            name: quotedTweetUserObject.name,
+            verified: quotedTweetUserObject.verified,
+            protected: quotedTweetUserObject.protected,
+            metrics: {
+              followers_count: quotedTweetUserObject.public_metrics.followers_count,
+              following_count: quotedTweetUserObject.public_metrics.following_count,
+              tweet_count: quotedTweetUserObject.public_metrics.tweet_count,
+            }
+          }
+        }
+      })
     }
 
     tweets.push(tweet)
   })
 
-
-  /*
-  const tweet: Tweet = {
-    id: tweetData.id,
-    created_at: tweetData.created_at,
-    text: tweetData.text,
-    conversation_id: tweetData.conversation_id,
-    reply_settings: tweetData.reply_settings,
-    metrics: {
-      retweet_count: tweetData.public_metrics.retweet_count,
-      quote_count: tweetData.public_metrics.quote_count,
-      like_count: tweetData.public_metrics.like_count,
-      reply_count: tweetData.public_metrics.reply_count
-    },
-    author: {
-      id: authorData.id,
-      username: authorData.username,
-      name: authorData.name,
-      verified: authorData.verified,
-      protected: authorData.protected,
-      metrics: {
-        followers_count: authorData.public_metrics.followers_count,
-        following_count: authorData.public_metrics.following_count,
-        tweet_count: authorData.public_metrics.tweet_count
-      }
-    }
-  };
-  */
-
+  // res.status(200).json({ tweets: json }) 
   res.status(200).json({ tweets: tweets }) 
 }
