@@ -11,7 +11,6 @@ export default async function handler(
 ) {
   // get the string to search for from the request
   const { query } = req.query
-  console.log(query)
 
   // constants
   const baseURL = 'https://api.twitter.com/2/tweets/search/recent?query='
@@ -35,8 +34,6 @@ export default async function handler(
     }
   )
   const json = await response.json()
-  console.log(json)
-
 
   // parse the tweets
   const tweetsArray = json.data
@@ -48,10 +45,9 @@ export default async function handler(
       (user: TwitterUser) => user.id === twitterTweet.author_id
     )
 
-
     // there should only be one referenced tweet - the quoted tweet - as we are excluding replies/retweets
     const quotedTweetId = twitterTweet.referenced_tweets?.[0]?.id
-    const quotedTweetObject: TwitterTweet = json.includes?.tweets.find(
+    const quotedTweetObject: TwitterTweet = json.includes?.tweets?.find(
       (tweet: TwitterTweet) => tweet.id === quotedTweetId
     )
     const quotedTweetUserObject: TwitterUser = json.includes.users.find(
@@ -62,6 +58,15 @@ export default async function handler(
     if (quotedTweetId) {
       twitterTweet.text = twitterTweet.text.replace(/\s?https:\/\/t\.co\/\w+$/, "");
     }
+
+    // get URLs from tweet
+    const urlArray = twitterTweet.entities?.urls?.map((url) => (
+      {
+        url: url.url,
+        expanded_url: url.expanded_url,
+        display_url: url.display_url
+      }
+    ))
 
     const tweet: Tweet = {
       id: twitterTweet.id,
@@ -113,6 +118,9 @@ export default async function handler(
             }
           }
         }
+      }),
+      ...(urlArray && {
+        urls: urlArray
       })
     }
 

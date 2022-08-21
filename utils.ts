@@ -32,7 +32,11 @@ export interface Tweet {
   }
   quoted_tweet?: Tweet;
   mentions?: Object;
-  media?: Object;
+  urls?: {
+    url: string;
+    expanded_url: string;
+    display_url: string;
+  }[]
 }
 
 export interface TwitterTweet {
@@ -50,7 +54,13 @@ export interface TwitterTweet {
     cashtages?: Array<Object>;
     hashtags?: Array<Object>;
     mentions?: Array<Object>;
-    urls?: Array<Object>;
+    urls?: {
+      start: number;
+      end: number;
+      url: string;
+      expanded_url: string;
+      display_url: string;
+    }[]
   }
   attachments?: {
     media_keys: Array<string>;
