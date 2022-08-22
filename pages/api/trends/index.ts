@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { Trend } from '../../utils'
+import { Trend } from 'utils'
 
 const US_WOED = 23424977;
 
