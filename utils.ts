@@ -1,3 +1,6 @@
+import { AssertionError } from 'assert';
+import { createHmac, randomBytes } from 'crypto'
+
 export interface Trend {
   name: string;
   url: string;
@@ -115,4 +118,76 @@ export const getElapsedTime = (timestamp: string): string => {
   } else {
     return `${new Date(timestamp).toLocaleDateString("en-US")}`;
   }
+}
+
+const createSignature = (
+  method: string,
+  url: string,
+  queryParams: Object = {},
+  nonce: string,
+  timestamp: number
+): string => {
+  if (
+    !process.env.TWITTER_API_KEY ||
+    !process.env.TWITTER_ACCESS_TOKEN ||
+    !process.env.TWITTER_API_SECRET ||
+    !process.env.TWITTER_ACCESS_SECRET
+  ) {
+    const message = 'Missing environment variables'
+    throw new AssertionError({ message })
+  }
+
+  const params: any = {
+    ...queryParams,
+    oauth_consumer_key: process.env.TWITTER_API_KEY,
+    oauth_nonce: nonce,
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: timestamp.toString(),
+    oauth_token: process.env.TWITTER_ACCESS_TOKEN,
+    oauth_version: "1.0",
+  }
+
+  // creates sorted string of encoded key-value pairs for each parameter
+  const paramsString = Object.keys(params)
+    .sort()
+    .map((key) => {
+      return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])
+        .replace(/!/g, "%21")}`
+    })
+    .join("&")
+
+  const signatureBaseString = `${encodeURIComponent(method)}&${encodeURIComponent(url)}&${encodeURIComponent(paramsString)}`
+  const signingKey = `${encodeURIComponent(process.env.TWITTER_API_SECRET)}&${encodeURIComponent(process.env.TWITTER_ACCESS_SECRET)}`
+  
+  const hmac = createHmac("sha1", signingKey, { encoding: "binary" })
+  hmac.update(signatureBaseString)
+  const buf = hmac.digest()
+  const signature = buf.toString("base64")
+
+  return encodeURIComponent(signature)
+}
+
+export const createOAuthString = (
+  method: string,
+  url: string,
+  params: Object = {}
+): string => {
+  const buf = randomBytes(32)
+  const oauth_nonce = buf.toString("hex")
+  const timestamp = Math.floor(Date.now() / 1000)
+
+  const signature = createSignature(
+    method,
+    url,
+    params,
+    oauth_nonce,
+    timestamp
+  );
+
+  let authorizationString = `OAuth oauth_consumer_key="${process.env.TWITTER_API_KEY}", `
+  authorizationString += `oauth_nonce="${oauth_nonce}", oauth_signature="${signature}", `
+  authorizationString += `oauth_signature_method="HMAC-SHA1", oauth_timestamp="${timestamp}", `
+  authorizationString += `oauth_token="${process.env.TWITTER_ACCESS_TOKEN}", oauth_version="1.0"`
+
+  return authorizationString
 }
