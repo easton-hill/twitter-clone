@@ -41,7 +41,12 @@ export default function TweetCard({ tweet, isQuotedTweet = false }: Props) {
 
   return (
     <div className={`border border-off-white ${isQuotedTweet ? 'rounded-md p-2' : 'p-4'}`}>
-      <h1 className='text-2xl'>{tweet.author.name}</h1>
+      <div className='flex justify-between items-center'>
+        <h1 className='text-2xl'>{tweet.author.name}</h1>
+        <a className='cursor-pointer underline hover:text-light-blue' href={`https://twitter.com/${tweet.author.username}/status/${tweet.id}`} target='blank'>
+          View on twitter
+        </a>
+      </div>
       <h2 className='text-xl pb-2'>@{tweet.author.username} | {formatNumber(tweet.author.metrics.followers_count)} followers</h2>
       <h2>
         {getElapsedTime(tweet.created_at)} | {' '}
