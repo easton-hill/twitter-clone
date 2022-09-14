@@ -42,6 +42,29 @@ export interface Tweet {
   }[]
 }
 
+export interface Profile {
+  id: string;
+  username: string;
+  name: string; 
+  verified: boolean;
+  protected: boolean;
+  metrics: {
+    followers_count: number;
+    following_count: number;
+    tweet_count: number;
+  }
+  bio: {
+    description: string;
+    created_at: string;
+    location?: string;
+    url?: {
+      expanded_url: string;
+      display_url: string;
+    }
+  }
+  pinned_tweet?: Tweet;
+}
+
 export interface TwitterTweet {
   author_id: string;
   id: string;
@@ -88,6 +111,34 @@ export interface TwitterUser {
     following_count: number;
     tweet_count: number;
     listed_count: number;
+  }
+}
+
+export interface TwitterProfile extends TwitterUser {
+  description: string;
+  created_at: string;
+  location?: string;
+  url: string;
+  pinned_tweet_id?: string;
+  entities?: {
+    url?: {
+      urls: {
+        start: number;
+        end: number;
+        url: string;
+        expanded_url: string;
+        display_url: string; 
+      }[]
+    }
+    description?: {
+      urls?: {
+        start: number;
+        end: number;
+        url: string;
+        expanded_url: string;
+        display_url: string; 
+      }[]
+    }
   }
 }
 
