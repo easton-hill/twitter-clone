@@ -40,7 +40,7 @@ export default function TweetCard({ tweet, isQuotedTweet = false }: Props) {
   }
 
   return (
-    <div className={`border border-off-white ${isQuotedTweet ? 'rounded-md p-2' : 'p-4'}`}>
+    <div className={`border${isQuotedTweet ? ' rounded-md p-2' : '-b p-4'} border-off-white`}>
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl'>{tweet.author.name}</h1>
         <a className='cursor-pointer underline hover:text-light-blue' href={`https://twitter.com/${tweet.author.username}/status/${tweet.id}`} target='blank'>

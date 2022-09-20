@@ -15,7 +15,7 @@ export default function Main() {
   }, [])
 
   return (
-    <div className='mx-auto my-8 w-2/4 max-w-2xl bg-med-blue'>
+    <div className='mx-auto w-1/2 max-w-2xl border-x border-off-white bg-med-blue mt-20 mb-10'>
       <Timeline tweets={timeline} />
     </div>
   )
