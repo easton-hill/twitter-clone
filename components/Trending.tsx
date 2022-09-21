@@ -20,7 +20,7 @@ const TrendCard = ({ trend }: TrendCardProps): ReactElement => {
   }
 
   return (
-    <div className='border border-off-white p-4' onClick={handleClick}>
+    <div className='border-b border-off-white p-4' onClick={handleClick}>
       <h1 className={`text-4xl cursor-pointer ${displayTrendingTweets && !trend.tweet_volume? 'mb-2': ''}`}>{trend.name}</h1>
       {trend.tweet_volume && <h2 className={`text-xl cursor-pointer ${ displayTrendingTweets ? 'mb-2': ''}`}>{formatNumber(trend.tweet_volume)} tweets</h2>}
       {displayTrendingTweets ? trendingTweets.map((tweet: Tweet) => (
