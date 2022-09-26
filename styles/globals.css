@@ -11,3 +11,12 @@ body {
   background-color: #141d2b;
   color: #ddd;
 }
+
+.nav-link {
+  cursor: pointer;
+  transition: color 0.1s;
+}
+
+.nav-link:hover, .nav-link-active {
+  color: theme(colors.light-blue)
+}
