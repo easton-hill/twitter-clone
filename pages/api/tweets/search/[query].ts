@@ -54,6 +54,15 @@ export default async function handler(
       (user: TwitterUser) => user.id === quotedTweetObject?.author_id
     )
 
+    // check for URLs in the quotes tweet
+    const quotedUrlArray = quotedTweetObject?.entities?.urls?.map((url) => (
+      {
+        url: url.url,
+        expanded_url: url.expanded_url,
+        display_url: url.display_url
+      }
+    ))
+
     // remove the referenced tweet link from the text of the original tweet - it will always be the last link
     if (quotedTweetId) {
       twitterTweet.text = twitterTweet.text.replace(/\s?https:\/\/t\.co\/\w+$/, "");
@@ -116,7 +125,10 @@ export default async function handler(
               following_count: quotedTweetUserObject.public_metrics.following_count,
               tweet_count: quotedTweetUserObject.public_metrics.tweet_count,
             }
-          }
+          },
+          ...(quotedUrlArray?.length && {
+            urls: quotedUrlArray
+          })
         }
       }),
       ...(urlArray && {
