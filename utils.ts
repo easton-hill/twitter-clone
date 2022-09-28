@@ -65,6 +65,23 @@ export interface Profile {
   pinned_tweet?: Tweet;
 }
 
+export const emptyProfile: Profile = {
+  id: '',
+  username: '',
+  name: '' ,
+  verified: false,
+  protected: false,
+  metrics: {
+    followers_count: 0,
+    following_count: 0,
+    tweet_count: 0,
+  },
+  bio: {
+    description: '',
+    created_at: '',
+  }
+}
+
 export interface TwitterTweet {
   author_id: string;
   id: string;
