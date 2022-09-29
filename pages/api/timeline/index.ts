@@ -19,7 +19,7 @@ export default async function handler(
     'media.fields': 'url,public_metrics,alt_text',
     'tweet.fields': 'conversation_id,created_at,entities,public_metrics,reply_settings',
     'user.fields': 'protected,public_metrics,verified',
-    'max_results': '10',
+    'max_results': '50',
     ...(token && {
       'pagination_token': token
     })
