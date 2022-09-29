@@ -10,10 +10,16 @@ interface MainProps {
 
 export default function Main({ activeTab }: MainProps) {
   const [timeline, setTimeline] = useState([])
+  const [timelineLoading, setTimelineLoading] = useState(false)
+  const [timelineToken, setTimelineToken] = useState('')
   const getTimeline = async () => {
-    const response = await fetch('api/timeline')
+    setTimelineLoading(true)
+    console.log('getting timeline')
+    const response = await fetch(`api/timeline?token=${timelineToken}`)
     const json = await response.json()
-    setTimeline(json.tweets)
+    setTimelineToken(json.next_token)
+    setTimeline(timeline.concat(json.tweets))
+    setTimelineLoading(false)
   }
 
   const [trending, setTrending] = useState([])
@@ -42,7 +48,7 @@ export default function Main({ activeTab }: MainProps) {
 
   return (
     <div className='mx-auto w-1/2 max-w-2xl border-x border-off-white bg-med-blue mt-20 mb-10'>
-      {activeTab === 'timeline' && <Timeline tweets={timeline} />}
+      {activeTab === 'timeline' && <Timeline tweets={timeline} getTweets={getTimeline} loading={timelineLoading} />}
       {activeTab === 'trending' && <Trending trends={trending} />}
       {activeTab === 'profile' && profile.id && <ProfileCard profile={profile} />}
     </div>
