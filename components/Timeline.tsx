@@ -14,7 +14,6 @@ export default function Timeline({ tweets, getTweets, loading }: TimelineProps) 
   const handleScroll = () => {
     if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 10) {
       setAtBottom(true)
-      console.log('loading')
     }
   }
 
@@ -25,7 +24,6 @@ export default function Timeline({ tweets, getTweets, loading }: TimelineProps) 
 
   useEffect(() => {
     if (atBottom && !loading) {
-      console.log('running')
       getTweets() 
     }
   }, [atBottom])

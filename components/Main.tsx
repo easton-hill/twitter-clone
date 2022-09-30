@@ -14,7 +14,6 @@ export default function Main({ activeTab }: MainProps) {
   const [timelineToken, setTimelineToken] = useState('')
   const getTimeline = async () => {
     setTimelineLoading(true)
-    console.log('getting timeline')
     const response = await fetch(`api/timeline?token=${timelineToken}`)
     const json = await response.json()
     setTimelineToken(json.next_token)
