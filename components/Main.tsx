@@ -45,11 +45,18 @@ export default function Main({ activeTab }: MainProps) {
     }
   }, [activeTab])
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
-    <div className='mx-auto w-1/2 max-w-2xl border-x border-off-white bg-med-blue mt-20 mb-10'>
+    <div className='mx-auto w-1/2 max-w-screen-sm border-x border-off-white bg-med-blue mt-20 mb-10'>
       {activeTab === 'timeline' && <Timeline tweets={timeline} getTweets={getTimeline} loading={timelineLoading} />}
       {activeTab === 'trending' && <Trending trends={trending} />}
       {activeTab === 'profile' && profile.id && <ProfileCard profile={profile} />}
+      <button onClick={scrollToTop} className='fixed bottom-10 ml-[52%] xl:ml-[665px] text-4xl font-bold bg-off-white text-light-blue px-4 py-1 rounded-full'>
+        {String.fromCharCode(8593)}
+      </button>
     </div>
   )
 }
