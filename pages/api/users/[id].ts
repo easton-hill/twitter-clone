@@ -4,13 +4,14 @@ import { Profile, Tweet, TwitterProfile, TwitterTweet, TwitterUser, createOAuthS
 type Data = {
   profile: Profile
   tweets: Array<Tweet>;
+  next_token: string;
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { id } = req.query
+  const { id, token } = req.query
   const profileBaseUrl = `https://api.twitter.com/2/users/${id}`
 
   const profileParams: any = {
@@ -30,6 +31,9 @@ export default async function handler(
     'expansions': 'attachments.media_keys,author_id,entities.mentions.username,referenced_tweets.id,referenced_tweets.id.author_id',
     'tweet.fields': 'conversation_id,created_at,entities,public_metrics,reply_settings',
     'user.fields': 'created_at,description,entities,location,protected,public_metrics,url,verified',
+    ...(token && {
+      'pagination_token': token
+    })
   }
   const tweetsAuthorizationString = createOAuthString('GET', tweetsBaseUrl, tweetsParams)
   const tweetsParamsArray: Array<string> = []
@@ -115,6 +119,7 @@ export default async function handler(
   }
 
   // parse the tweets
+  const nextToken = tweetsJson.meta.next_token
   const tweetsArray = tweetsJson.data
   const tweets: Tweet[] = []
 
@@ -218,5 +223,5 @@ export default async function handler(
     tweets.push(tweet)
   })
 
-  res.status(200).json({ profile: profile, tweets: tweets })
+  res.status(200).json({ profile: profile, tweets: tweets, next_token: nextToken })
 }
