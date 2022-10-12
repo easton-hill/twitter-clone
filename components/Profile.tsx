@@ -1,11 +1,13 @@
-import { Profile, formatNumber } from 'utils'
+import { useEffect, useState } from 'react'
+import { Profile as ProfileType, emptyProfile, formatNumber } from 'utils'
 import TweetCard from './TweetCard'
+import Timeline from './Timeline'
 
-interface Props {
-  profile: Profile
+interface ProfileCardProps {
+  profile: ProfileType;
 }
 
-export default function ProfileCard({ profile }: Props) {
+const ProfileCard = ({ profile }: ProfileCardProps) => {
   const getFormattedCreatedAt = (timestamp: string): string => {
     const createdAtDate = new Date(timestamp)
     const month = createdAtDate.getMonth()
@@ -43,7 +45,39 @@ export default function ProfileCard({ profile }: Props) {
         {formatNumber(profile.metrics.tweet_count)} tweets
       </p>
 
+      {profile.pinned_tweet && <h1 className='text-xl pl-4'>Pinned Tweet</h1>}
       {profile.pinned_tweet && <TweetCard tweet={profile.pinned_tweet} />}
+    </div>
+  )
+}
+
+interface ProfileProps {
+  id: string;
+}
+
+export default function Profile({ id }: ProfileProps) {
+  const [profile, setProfile] = useState<ProfileType>(emptyProfile)
+  const [tweets, setTweets] = useState([])
+  const [tweetsLoading, setTweetsLoading] = useState(false)
+  const [tweetsToken, setTweetsToken] = useState('')
+  const getProfile = async () => {
+    setTweetsLoading(true)
+    const response = await fetch(`api/users/${id}?token=${tweetsToken}`)
+    const json = await response.json()
+    setTweetsToken(json.next_token)
+    setProfile(json.profile)
+    setTweets(tweets.concat(json.tweets))
+    setTweetsLoading(false)
+  }
+
+  useEffect(() => {
+    getProfile()
+  }, [])
+
+  return (
+    <div>
+      <ProfileCard profile={profile}/>
+      <Timeline tweets={tweets} getTweets={getProfile} loading={tweetsLoading} />
     </div>
   )
 }
