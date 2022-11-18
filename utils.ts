@@ -34,7 +34,12 @@ export interface Tweet {
     }
   }
   quoted_tweet?: Tweet;
-  mentions?: Object;
+  mentions?: {
+    start: number;
+    end: number;
+    username: string;
+    id: string;
+  }[]
   urls?: {
     url: string;
     expanded_url: string;
@@ -96,7 +101,12 @@ export interface TwitterTweet {
     annotations?: Array<Object>;
     cashtages?: Array<Object>;
     hashtags?: Array<Object>;
-    mentions?: Array<Object>;
+    mentions?: {
+      start: number;
+      end: number;
+      username: string;
+      id: string;
+    }[]
     urls?: {
       start: number;
       end: number;
@@ -295,6 +305,16 @@ export const parseTweets = (
       }
     ))
 
+    // check for mentions in the quotes tweet
+    const quotedMentionsArray = quotedTweetObject?.entities?.mentions?.map((mention) => (
+      {
+        start: mention.start,
+        end: mention.end,
+        username: mention.username,
+        id: mention.id,
+      }
+    ))
+
     // remove the referenced tweet link from the text of the original tweet - it will always be the last link
     if (quotedTweetId) {
       twitterTweet.text = twitterTweet.text.replace(/\s?https:\/\/t\.co\/\w+$/, "");
@@ -306,6 +326,16 @@ export const parseTweets = (
         url: url.url,
         expanded_url: url.expanded_url,
         display_url: url.display_url
+      }
+    ))
+
+    // get mentions from tweet
+    const mentionsArray = twitterTweet.entities?.mentions?.map((mention) => (
+      {
+        start: mention.start,
+        end: mention.end,
+        username: mention.username,
+        id: mention.id,
       }
     ))
 
@@ -360,11 +390,17 @@ export const parseTweets = (
           },
           ...(quotedUrlArray?.length && {
             urls: quotedUrlArray
+          }),
+          ...(quotedMentionsArray?.length && {
+            mentions: quotedMentionsArray
           })
         }
       }),
       ...(urlArray && {
         urls: urlArray
+      }),
+      ...(mentionsArray && {
+        mentions: mentionsArray
       })
     }
 
