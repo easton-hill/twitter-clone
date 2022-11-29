@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Profile as ProfileType, emptyProfile, formatNumber } from 'utils'
+import { Profile as ProfileType, emptyProfile, formatNumber, Tweet } from 'utils'
 import TweetCard from './TweetCard'
 import Timeline from './Timeline'
 
 interface ProfileCardProps {
   profile: ProfileType;
+  handleBackButtonClick: Function;
 }
 
-const ProfileCard = ({ profile }: ProfileCardProps) => {
+const ProfileCard = ({ profile, handleBackButtonClick }: ProfileCardProps) => {
   const getFormattedCreatedAt = (timestamp: string): string => {
     const createdAtDate = new Date(timestamp)
     const month = createdAtDate.getMonth()
@@ -21,8 +22,15 @@ const ProfileCard = ({ profile }: ProfileCardProps) => {
     return `${monthNames[month]} ${year}`
   }
 
+  const handleClick = () => {
+    handleBackButtonClick()
+  }
+
   return (
     <div className='p-2'>
+      <button onClick={handleClick} className='text-4xl font-bold pb-4 pr-2'>
+        {String.fromCharCode(8592)}
+      </button>
       <h1 className='text-4xl'>{profile.name}</h1>
       <h2 className='text-2xl pb-2'>@{profile.username}</h2>
       <p className='text-xl pb-1'>{profile.bio.description}</p>
@@ -53,31 +61,44 @@ const ProfileCard = ({ profile }: ProfileCardProps) => {
 
 interface ProfileProps {
   id: string;
+  handleBackButtonClick: Function;
+  handleProfileClick: Function;
 }
 
-export default function Profile({ id }: ProfileProps) {
-  const [profile, setProfile] = useState<ProfileType>(emptyProfile)
-  const [tweets, setTweets] = useState([])
+export default function Profile({ id, handleBackButtonClick, handleProfileClick }: ProfileProps) {
+  const [tweets, setTweets] = useState<Tweet[]>([])
   const [tweetsLoading, setTweetsLoading] = useState(false)
   const [tweetsToken, setTweetsToken] = useState('')
-  const getProfile = async () => {
+  const getTweets = async (clearTweets: boolean) => {
     setTweetsLoading(true)
     const response = await fetch(`api/users/${id}?token=${tweetsToken}`)
     const json = await response.json()
     setTweetsToken(json.next_token)
-    setProfile(json.profile)
-    setTweets(tweets.concat(json.tweets))
+    if (clearTweets) {
+      setTweets(json.tweets)
+    } else {
+      setTweets([...tweets, ...json.tweets])
+    }
     setTweetsLoading(false)
   }
 
+  const [profile, setProfile] = useState<ProfileType>(emptyProfile)
+  const getProfile = async () => {
+    const response = await fetch(`api/users/${id}?token=${tweetsToken}`)
+    const json = await response.json()
+    setProfile(json.profile)
+    getTweets(true)
+  }
+
   useEffect(() => {
+    setTweets([])
     getProfile()
-  }, [])
+  }, [id])
 
   return (
     <div>
-      <ProfileCard profile={profile}/>
-      <Timeline tweets={tweets} getTweets={getProfile} loading={tweetsLoading} />
+      <ProfileCard profile={profile} handleBackButtonClick={handleBackButtonClick} />
+      <Timeline tweets={tweets} getTweets={getTweets} loading={tweetsLoading} handleProfileClick={handleProfileClick} />
     </div>
   )
 }

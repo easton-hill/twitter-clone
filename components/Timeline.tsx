@@ -6,9 +6,10 @@ interface TimelineProps {
   tweets: Array<Tweet>
   getTweets: Function;
   loading: boolean;
+  handleProfileClick?: Function;
 }
 
-export default function Timeline({ tweets, getTweets, loading }: TimelineProps) {
+export default function Timeline({ tweets, getTweets, loading, handleProfileClick }: TimelineProps) {
   const [atBottom, setAtBottom] = useState(false)
 
   const handleScroll = () => {
@@ -24,7 +25,7 @@ export default function Timeline({ tweets, getTweets, loading }: TimelineProps) 
 
   useEffect(() => {
     if (atBottom && !loading) {
-      getTweets() 
+      getTweets(false) 
     }
   }, [atBottom])
 
@@ -37,7 +38,7 @@ export default function Timeline({ tweets, getTweets, loading }: TimelineProps) 
   return (
     <div>
       {tweets.length > 0 && tweets.map((tweet: Tweet) => (
-        <TweetCard key={tweet.id} tweet={tweet} />
+        <TweetCard key={tweet.id} tweet={tweet} handleProfileClick={handleProfileClick} />
       ))}
     </div>
   )
