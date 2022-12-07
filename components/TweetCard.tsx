@@ -18,12 +18,15 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
     }
   }
 
+  const decodeEntities = (text: string): string => {
+    // decode HTML entities
+    let decodedText = text
+    decodedText = text.replace(/&amp;/g, '&')
+    return decodedText
+  }
+
   const formatTweetText = (tweet: Tweet): ReactElement => {
     let cleanTweetText = tweet.text
-
-    // decode HTML entities
-    cleanTweetText = cleanTweetText.replace(/&amp;/g, '&')
-    cleanTweetText = cleanTweetText.replace(/\n/g, '')
 
     // remove all links from tweet text
     tweet.urls?.forEach((url) => {
@@ -38,24 +41,37 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
     // each part will be an object with type, text, and profile ID (if applicable)
     const tweetParts = []
     let prevMentionEnd = 0
+
+    // since emojis count as two chars, we need to keep track of them and adjust the indices
+    let emojiCount = 0
+
     tweet.mentions?.forEach(mention => {
-      const prevText = cleanTweetText.substring(prevMentionEnd, mention.start)
+      let prevText = cleanTweetText.substring(prevMentionEnd + emojiCount, mention.start + emojiCount)
+      const prevTextEmojiCount = (prevText.match(/\p{Emoji_Presentation}/ug) || []).length
+
+      // if we found an emoji, we need to adjust the previous text for it
+      if (prevTextEmojiCount) {
+        prevText = cleanTweetText.substring(prevMentionEnd + emojiCount, mention.start + emojiCount + prevTextEmojiCount)
+      }
+
       tweetParts.push({
         type: 'text',
         text: prevText,
         id: 0
       })
 
-      const mentionText = cleanTweetText.substring(mention.start, mention.end)
+      emojiCount += prevTextEmojiCount
+
+      const mentionText = cleanTweetText.substring(mention.start + emojiCount, mention.end + emojiCount)
       tweetParts.push({
         type: 'mention',
         text: mentionText,
         id: mention.id
       })
 
-      prevMentionEnd = mention.end
+      prevMentionEnd = mention.end + emojiCount
     })
-    const remainingText = cleanTweetText.substring(prevMentionEnd, cleanTweetText.length)
+    const remainingText = cleanTweetText.substring(prevMentionEnd + emojiCount)
     tweetParts.push({
       type: 'text',
       text: remainingText,
@@ -67,17 +83,17 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
 
     // format mentions, then add actual links to end of tweet
     return (
-      <p className={`text-xl ${hasQuotedTweet ? 'mb-2' : ''}`}>
+      <p className={`whitespace-pre-line text-xl ${hasQuotedTweet ? 'mb-2' : ''}`}>
         {tweetParts?.map((tweetPart, i) => (
           <span key={i} data-profile-id={`${tweetPart.type === 'mention' ? tweetPart.id : '0'}`}
           className={`${tweetPart.type === 'mention' ? 'cursor-pointer text-light-blue hover:underline' : ''}`}
           onClick={handleClick}>
-            {tweetPart.text}
+            {decodeEntities(tweetPart.text)}
           </span>
         ))}
         {filteredURLs?.map((url, i) => (
           <span key={i}>
-            {i ? " " : ""}
+            {i ? " " : "\n"}
             <a className="cursor-pointer text-light-blue hover:underline" href={url.expanded_url} target="_blank"> 
               {url.display_url}
             </a>
