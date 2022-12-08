@@ -69,29 +69,30 @@ export default function Profile({ id, handleBackButtonClick, handleProfileClick 
   const [tweets, setTweets] = useState<Tweet[]>([])
   const [tweetsLoading, setTweetsLoading] = useState(false)
   const [tweetsToken, setTweetsToken] = useState('')
-  const getTweets = async (clearTweets: boolean) => {
+  const getTweets = async () => {
     setTweetsLoading(true)
     const response = await fetch(`api/users/${id}?token=${tweetsToken}`)
     const json = await response.json()
     setTweetsToken(json.next_token)
-    if (clearTweets) {
-      setTweets(json.tweets)
-    } else {
-      setTweets([...tweets, ...json.tweets])
-    }
+    setTweets([...tweets, ...json.tweets])
     setTweetsLoading(false)
   }
 
   const [profile, setProfile] = useState<ProfileType>(emptyProfile)
   const getProfile = async () => {
-    const response = await fetch(`api/users/${id}?token=${tweetsToken}`)
+    const response = await fetch(`api/users/${id}`)
     const json = await response.json()
     setProfile(json.profile)
-    getTweets(true)
+
+    setTweetsLoading(true)
+    setTweetsToken(json.next_token)
+    setTweets(json.tweets)
+    setTweetsLoading(false)
   }
 
   useEffect(() => {
     setTweets([])
+    setTweetsToken('')
     getProfile()
   }, [id])
 
