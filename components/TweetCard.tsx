@@ -9,7 +9,16 @@ interface Props {
 }
 
 export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileClick }: Props) {
-  const hasQuotedTweet = tweet.quoted_tweet
+  const hasQuotedTweet = tweet.referenced_tweet?.reference_type === 'quoted'
+  const hasRetweetedTweet = tweet.referenced_tweet?.reference_type === 'retweeted'
+
+  // if there is a retweet, the source tweet needs to be switched to the retweeted (referenced) tweet
+  let sourceTweet: Tweet
+  if (tweet.referenced_tweet?.reference_type === 'retweeted') {
+    sourceTweet = tweet.referenced_tweet
+  } else {
+    sourceTweet = tweet
+  }
 
   const handleClick = (e: MouseEvent<HTMLElement>) => {
     const profileId = e.currentTarget.dataset.profileId
@@ -25,11 +34,11 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
     return decodedText
   }
 
-  const formatTweetText = (tweet: Tweet): ReactElement => {
-    let cleanTweetText = tweet.text
+  const formatTweetText = (): ReactElement => {
+    let cleanTweetText = sourceTweet.text
 
     // remove all links from tweet text
-    tweet.urls?.forEach((url) => {
+    sourceTweet.urls?.forEach((url) => {
       cleanTweetText = cleanTweetText.replace(url.url, "")
     })
 
@@ -45,7 +54,7 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
     // since emojis count as two chars, we need to keep track of them and adjust the indices
     let emojiCount = 0
 
-    tweet.mentions?.forEach(mention => {
+    sourceTweet.mentions?.forEach(mention => {
       let prevText = cleanTweetText.substring(prevMentionEnd + emojiCount, mention.start + emojiCount)
       const prevTextEmojiCount = (prevText.match(/\p{Emoji_Presentation}/ug) || []).length
 
@@ -79,7 +88,7 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
     })
 
     // filter out any URLs that don't appear in actual tweet text (ex. quote RT links)
-    const filteredURLs = tweet.urls?.filter((url) => tweet.text.includes(url.url))
+    const filteredURLs = sourceTweet.urls?.filter((url) => tweet.text.includes(url.url))
 
     // format mentions, then add actual links to end of tweet
     return (
@@ -105,25 +114,26 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
 
   return (
     <div className={`border${isQuotedTweet ? ' rounded-md p-2' : '-b p-4'} border-off-white`}>
+      {hasRetweetedTweet && <p>retweeted by {tweet.author.name}</p>}
       <div className='flex justify-between items-center'>
-        <h1 className='text-2xl'>{tweet.author.name}</h1>
-        <a className='cursor-pointer underline hover:text-light-blue' href={`https://twitter.com/${tweet.author.username}/status/${tweet.id}`} target='blank'>
+        <h1 className='text-2xl'>{sourceTweet.author.name}</h1>
+        <a className='cursor-pointer underline hover:text-light-blue' href={`https://twitter.com/${sourceTweet.author.username}/status/${tweet.id}`} target='blank'>
           View on twitter
         </a>
       </div>
       <h2 className='text-xl pb-2'>
-        <span data-profile-id={tweet.author.id} onClick={handleClick} className="cursor-pointer text-light-blue hover:underline">
-          @{tweet.author.username}</span> | {formatNumber(tweet.author.metrics.followers_count)} followers
+        <span data-profile-id={sourceTweet.author.id} onClick={handleClick} className="cursor-pointer text-light-blue hover:underline">
+          @{sourceTweet.author.username}</span> | {formatNumber(tweet.author.metrics.followers_count)} followers
       </h2>
       <h2>
-        {getElapsedTime(tweet.created_at)} | {' '}
-        {formatNumber(tweet.metrics.retweet_count)} RTs | {' '}
-        {formatNumber(tweet.metrics.quote_count)} quotes | {' '}
-        {formatNumber(tweet.metrics.like_count)} likes | {' '}
-        {formatNumber(tweet.metrics.reply_count)} replies
+        {getElapsedTime(sourceTweet.created_at)} | {' '}
+        {formatNumber(sourceTweet.metrics.retweet_count)} RTs | {' '}
+        {formatNumber(sourceTweet.metrics.quote_count)} quotes | {' '}
+        {formatNumber(sourceTweet.metrics.like_count)} likes | {' '}
+        {formatNumber(sourceTweet.metrics.reply_count)} replies
       </h2>
-      {formatTweetText(tweet)}
-      {hasQuotedTweet && <TweetCard tweet={hasQuotedTweet} isQuotedTweet={true} />}
+      {formatTweetText()}
+      {hasQuotedTweet && <TweetCard tweet={sourceTweet.referenced_tweet!} isQuotedTweet={true} />}
     </div>
   )
 }

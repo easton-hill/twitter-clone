@@ -33,7 +33,8 @@ export interface Tweet {
       tweet_count: number;
     }
   }
-  quoted_tweet?: Tweet;
+  referenced_tweet?: Tweet;
+  reference_type?: string;
   mentions?: {
     start: number;
     end: number;
@@ -287,17 +288,20 @@ export const parseTweets = (
       (user: TwitterUser) => user.id === twitterTweet.author_id
     )!
 
-    // there should only be one referenced tweet - the quoted tweet - as we are excluding replies/retweets
-    const quotedTweetId = twitterTweet.referenced_tweets?.[0]?.id
-    const quotedTweetObject: TwitterTweet = json.includes?.tweets?.find(
-      (tweet: TwitterTweet) => tweet.id === quotedTweetId
+    // check for referenced tweet
+    const referencedTweetType = twitterTweet.referenced_tweets?.[0]?.type
+    const referencedTweetId = twitterTweet.referenced_tweets?.[0]?.id
+
+    // get the referenced tweet and user objects
+    const referencedTweetObject: TwitterTweet = json.includes?.tweets?.find(
+      (tweet: TwitterTweet) => tweet.id === referencedTweetId
     )!
-    const quotedTweetUserObject: TwitterUser = json.includes.users.find(
-      (user: TwitterUser) => user.id === quotedTweetObject?.author_id
+    const referencedTweetUserObject: TwitterUser = json.includes.users.find(
+      (user: TwitterUser) => user.id === referencedTweetObject?.author_id
     )!
 
-    // check for URLs in the quotes tweet
-    const quotedUrlArray = quotedTweetObject?.entities?.urls?.map((url) => (
+    // check for URLs in the referenced tweet
+    const referencedUrlArray = referencedTweetObject?.entities?.urls?.map((url) => (
       {
         url: url.url,
         expanded_url: url.expanded_url,
@@ -305,8 +309,8 @@ export const parseTweets = (
       }
     ))
 
-    // check for mentions in the quotes tweet
-    const quotedMentionsArray = quotedTweetObject?.entities?.mentions?.map((mention) => (
+    // check for mentions in the referenced tweet
+    const referencedMentionsArray = referencedTweetObject?.entities?.mentions?.map((mention) => (
       {
         start: mention.start,
         end: mention.end,
@@ -315,8 +319,8 @@ export const parseTweets = (
       }
     ))
 
-    // remove the referenced tweet link from the text of the original tweet - it will always be the last link
-    if (quotedTweetId) {
+    // if quote tweet, remove the referenced tweet link from the text of the original tweet - it will always be the last link
+    if (referencedTweetType === 'quoted') {
       twitterTweet.text = twitterTweet.text.replace(/\s?https:\/\/t\.co\/\w+$/, "");
     }
 
@@ -363,36 +367,37 @@ export const parseTweets = (
           tweet_count: userObject.public_metrics.tweet_count,
         }
       },
-      ...(quotedTweetId && {
-        quoted_tweet: {
-          id: quotedTweetObject.id,
-          created_at: quotedTweetObject.created_at,
-          text: quotedTweetObject.text,
-          conversation_id: quotedTweetObject.conversation_id,
-          reply_setting: quotedTweetObject.reply_settings,
+      ...(referencedTweetId && {
+        referenced_tweet: {
+          reference_type: referencedTweetType,
+          id: referencedTweetObject.id,
+          created_at: referencedTweetObject.created_at,
+          text: referencedTweetObject.text,
+          conversation_id: referencedTweetObject.conversation_id,
+          reply_setting: referencedTweetObject.reply_settings,
           metrics: {
-            retweet_count: quotedTweetObject.public_metrics.retweet_count,
-            quote_count: quotedTweetObject.public_metrics.quote_count,
-            like_count: quotedTweetObject.public_metrics.like_count,
-            reply_count: quotedTweetObject.public_metrics.reply_count,
+            retweet_count: referencedTweetObject.public_metrics.retweet_count,
+            quote_count: referencedTweetObject.public_metrics.quote_count,
+            like_count: referencedTweetObject.public_metrics.like_count,
+            reply_count: referencedTweetObject.public_metrics.reply_count,
           },
           author: {
-            id: quotedTweetUserObject.id,
-            username: quotedTweetUserObject.username,
-            name: quotedTweetUserObject.name,
-            verified: quotedTweetUserObject.verified,
-            protected: quotedTweetUserObject.protected,
+            id: referencedTweetUserObject.id,
+            username: referencedTweetUserObject.username,
+            name: referencedTweetUserObject.name,
+            verified: referencedTweetUserObject.verified,
+            protected: referencedTweetUserObject.protected,
             metrics: {
-              followers_count: quotedTweetUserObject.public_metrics.followers_count,
-              following_count: quotedTweetUserObject.public_metrics.following_count,
-              tweet_count: quotedTweetUserObject.public_metrics.tweet_count,
+              followers_count: referencedTweetUserObject.public_metrics.followers_count,
+              following_count: referencedTweetUserObject.public_metrics.following_count,
+              tweet_count: referencedTweetUserObject.public_metrics.tweet_count,
             }
           },
-          ...(quotedUrlArray?.length && {
-            urls: quotedUrlArray
+          ...(referencedUrlArray?.length && {
+            urls: referencedUrlArray
           }),
-          ...(quotedMentionsArray?.length && {
-            mentions: quotedMentionsArray
+          ...(referencedMentionsArray?.length && {
+            mentions: referencedMentionsArray
           })
         }
       }),
