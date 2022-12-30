@@ -27,34 +27,34 @@ const ProfileCard = ({ profile, handleBackButtonClick }: ProfileCardProps) => {
   }
 
   return (
-    <div className='p-2'>
-      <button onClick={handleClick} className='text-4xl font-bold pb-4 pr-2'>
-        {String.fromCharCode(8592)}
-      </button>
-      <h1 className='text-4xl'>{profile.name}</h1>
-      <h2 className='text-2xl pb-2'>@{profile.username}</h2>
-      <p className='text-xl pb-1'>{profile.bio.description}</p>
-      <div className='flex items-center gap-2 pb-2'>
-        <p>created: {getFormattedCreatedAt(profile.bio.created_at)}</p>
-        {profile.bio.location && <p>location: {profile.bio.location}</p>}
-        {
-          profile.bio.url?.display_url &&
-          <p>
-            link: {" "}
-            <a className="cursor-pointer underline hover:text-light-blue" href={profile.bio.url.expanded_url} target="_blank">
-              {profile.bio.url.display_url}
-            </a>
-          </p>
-        }
+    <div>
+      <div className='p-2 border-b border-off-white'>
+        <button onClick={handleClick} className='text-4xl font-bold pb-4 pr-2'>
+          {String.fromCharCode(8592)}
+        </button>
+        <h1 className='text-4xl'>{profile.name}</h1>
+        <h2 className='text-2xl pb-2'>@{profile.username}</h2>
+        <p className='text-xl pb-1'>{profile.bio.description}</p>
+        <div className='flex items-center gap-2 pb-2'>
+          <p>created: {getFormattedCreatedAt(profile.bio.created_at)}</p>
+          {profile.bio.location && <p>location: {profile.bio.location}</p>}
+          {
+            profile.bio.url?.display_url &&
+            <p>
+              link: {" "}
+              <a className="cursor-pointer underline hover:text-light-blue" href={profile.bio.url.expanded_url} target="_blank">
+                {profile.bio.url.display_url}
+              </a>
+            </p>
+          }
+        </div>
+        <p className='pb-2'>
+          {formatNumber(profile.metrics.following_count)} following | {" "}
+          {formatNumber(profile.metrics.followers_count)} followers | {" "}
+          {formatNumber(profile.metrics.tweet_count)} tweets
+        </p>
       </div>
-      <p className='pb-4'>
-        {formatNumber(profile.metrics.following_count)} following | {" "}
-        {formatNumber(profile.metrics.followers_count)} followers | {" "}
-        {formatNumber(profile.metrics.tweet_count)} tweets
-      </p>
-
-      {profile.pinned_tweet && <h1 className='text-xl pl-4'>Pinned Tweet</h1>}
-      {profile.pinned_tweet && <TweetCard tweet={profile.pinned_tweet} />}
+        {profile.pinned_tweet && <TweetCard tweet={profile.pinned_tweet} isPinnedTweet={true} />}
     </div>
   )
 }

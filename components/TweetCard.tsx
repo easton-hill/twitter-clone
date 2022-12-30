@@ -5,10 +5,11 @@ import { Tweet, formatNumber, getElapsedTime } from '../utils'
 interface Props {
   tweet: Tweet;
   isQuotedTweet?: boolean;
+  isPinnedTweet?: boolean;
   handleProfileClick?: Function;
 }
 
-export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileClick }: Props) {
+export default function TweetCard({ tweet, isQuotedTweet = false, isPinnedTweet = false, handleProfileClick }: Props) {
   const hasQuotedTweet = tweet.referenced_tweet?.reference_type === 'quoted'
   const hasRetweetedTweet = tweet.referenced_tweet?.reference_type === 'retweeted'
 
@@ -114,7 +115,8 @@ export default function TweetCard({ tweet, isQuotedTweet = false, handleProfileC
 
   return (
     <div className={`border${isQuotedTweet ? ' rounded-md p-2' : '-b p-4'} border-off-white`}>
-      {hasRetweetedTweet && <p>retweeted by {tweet.author.name}</p>}
+      {hasRetweetedTweet && <p className='pb-1'>retweeted by {tweet.author.name}</p>}
+      {isPinnedTweet && <p className='pb-1'>Pinned Tweet</p>}
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl'>{sourceTweet.author.name}</h1>
         <a className='cursor-pointer underline hover:text-light-blue' href={`https://twitter.com/${sourceTweet.author.username}/status/${tweet.id}`} target='blank'>
