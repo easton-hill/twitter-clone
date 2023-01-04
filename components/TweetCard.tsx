@@ -135,7 +135,7 @@ export default function TweetCard({ tweet, isQuotedTweet = false, isPinnedTweet 
         {formatNumber(sourceTweet.metrics.reply_count)} replies
       </h2>
       {formatTweetText()}
-      {hasQuotedTweet && <TweetCard tweet={sourceTweet.referenced_tweet!} isQuotedTweet={true} />}
+      {hasQuotedTweet && <TweetCard tweet={sourceTweet.referenced_tweet!} isQuotedTweet={true} handleProfileClick={handleProfileClick} />}
     </div>
   )
 }

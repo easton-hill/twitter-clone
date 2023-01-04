@@ -48,7 +48,9 @@ export default function Main({ activeTab }: MainProps) {
   const [isNested, setIsNested] = useState(false)
   const [nestedProfileId, setNestedProfileId] = useState('')
   const [nestedProfileStack, setNestedProfileStack] = useState<string[]>([])
+  const [scroll, setScroll] = useState(0)
   const handleProfileClick = (profileId: string) => {
+    setScroll(window.scrollY)
     setNestedProfileId(profileId)
     setIsNested(true)
     if (profileId !== nestedProfileStack[nestedProfileStack.length - 1]) {
@@ -60,6 +62,8 @@ export default function Main({ activeTab }: MainProps) {
     if (nestedProfileStack.length === 1) {
       setNestedProfileStack([])
       setIsNested(false)
+      window.scrollTo({ top: scroll })
+      setScroll(0)
     } else {
       const newNestedProfileStack = nestedProfileStack.slice()
       newNestedProfileStack.pop()
@@ -75,7 +79,7 @@ export default function Main({ activeTab }: MainProps) {
   return (
     <div className='mx-auto w-1/2 max-w-screen-sm border-x border-off-white bg-med-blue mt-20 mb-10'>
       {activeTab === 'timeline' && !isNested && <Timeline tweets={timeline} getTweets={getTimeline} loading={timelineLoading} handleProfileClick={handleProfileClick} />}
-      {activeTab === 'trending' && !isNested && <Trending trends={trending} />}
+      {activeTab === 'trending' && !isNested && <Trending trends={trending} handleProfileClick={handleProfileClick} />}
       {activeTab === 'profile' &&  !isNested && profile.id && <Profile id={profile.id} handleBackButtonClick={handleBackButtonClick} handleProfileClick={handleProfileClick}/>}
       {isNested && nestedProfileId && <Profile id={nestedProfileId} handleBackButtonClick={handleBackButtonClick} handleProfileClick={handleProfileClick}/>}
       <button onClick={scrollToTop} className='fixed bottom-10 ml-[52%] xl:ml-[665px] text-4xl font-bold bg-off-white text-light-blue px-4 py-1 rounded-full'>

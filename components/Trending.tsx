@@ -4,9 +4,10 @@ import TweetCard from './TweetCard'
 
 interface TrendCardProps {
   trend: Trend;
+  handleProfileClick?: Function;
 }
 
-const TrendCard = ({ trend }: TrendCardProps): ReactElement => {
+const TrendCard = ({ trend, handleProfileClick }: TrendCardProps): ReactElement => {
   const [trendingTweets, setTrendingTweets] = useState([])
   const [displayTrendingTweets, setDisplayTrendingTweets] = useState(false)
 
@@ -29,7 +30,7 @@ const TrendCard = ({ trend }: TrendCardProps): ReactElement => {
           {formatNumber(trend.tweet_volume)} tweets
         </h2>}
       {displayTrendingTweets ? trendingTweets.map((tweet: Tweet) => (
-        <TweetCard key={tweet.id} tweet={tweet} />
+        <TweetCard key={tweet.id} tweet={tweet} handleProfileClick={handleProfileClick} />
       )) : undefined}
     </div>
   )
@@ -37,13 +38,14 @@ const TrendCard = ({ trend }: TrendCardProps): ReactElement => {
 
 interface TrendingProps {
   trends: Array<Trend>;
+  handleProfileClick?: Function;
 }
 
-export default function Trending({ trends }: TrendingProps) {
+export default function Trending({ trends, handleProfileClick }: TrendingProps) {
   return (
     <div>
       {trends.map((trend: Trend) => (
-        <TrendCard key={trend.name} trend={trend} />
+        <TrendCard key={trend.name} trend={trend} handleProfileClick={handleProfileClick} />
       ))}
     </div>
   )
