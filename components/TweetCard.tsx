@@ -115,7 +115,10 @@ export default function TweetCard({ tweet, isQuotedTweet = false, isPinnedTweet 
 
   return (
     <div className={`border${isQuotedTweet ? ' rounded-md p-2' : '-b p-4'} border-off-white`}>
-      {hasRetweetedTweet && <p className='pb-1'>retweeted by {tweet.author.name}</p>}
+      {hasRetweetedTweet && 
+        <p className='pb-1'>retweeted by {" "}
+        <span data-profile-id={tweet.author.id} onClick={handleClick} className="cursor-pointer text-light-blue hover:underline">{tweet.author.name}</span>
+        </p>}
       {isPinnedTweet && <p className='pb-1'>Pinned Tweet</p>}
       <div className='flex justify-between items-center'>
         <h1 className='text-2xl'>{sourceTweet.author.name}</h1>
