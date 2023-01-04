@@ -20,7 +20,7 @@ export default async function handler(
     'media.fields=url,public_metrics,alt_text',
     'tweet.fields=conversation_id,created_at,entities,public_metrics,reply_settings',
     'user.fields=protected,public_metrics,verified',
-    'max_results=10',
+    'max_results=50',
   ]
 
   // HTTP encoding
@@ -37,6 +37,11 @@ export default async function handler(
   const json = await response.json()
   const tweets: Tweet[] = parseTweets(json)
 
-  // res.status(200).json({ tweets: json }) 
-  res.status(200).json({ tweets: tweets }) 
+  // sort tweets by total engagements
+  tweets.sort((tweet1, tweet2) => 
+    Object.values(tweet2.metrics).reduce((prev, curr) => prev + curr) -
+    Object.values(tweet1.metrics).reduce((prev, curr) => prev + curr)
+  )
+
+  res.status(200).json({ tweets: tweets.slice(0, 10) }) 
 }
