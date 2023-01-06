@@ -13,7 +13,7 @@ const TrendCard = ({ trend, handleProfileClick }: TrendCardProps): ReactElement 
 
   const handleClick = async () => {
     if (!trendingTweets.length) {
-      const response = await fetch(`/api/tweets/search/${trend.query}`)
+      const response = await fetch(`/api/tweets/search/${trend.query}?ranked=true`)
       const json = await response.json();
       setTrendingTweets(json.tweets)
     }

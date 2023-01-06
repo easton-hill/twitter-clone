@@ -10,7 +10,7 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   // get the string to search for from the request
-  const { query } = req.query
+  const { query, ranked } = req.query
 
   // constants
   const baseURL = 'https://api.twitter.com/2/tweets/search/recent?query='
@@ -37,11 +37,13 @@ export default async function handler(
   const json = await response.json()
   const tweets: Tweet[] = parseTweets(json)
 
-  // sort tweets by total engagements
-  tweets.sort((tweet1, tweet2) => 
-    Object.values(tweet2.metrics).reduce((prev, curr) => prev + curr) -
-    Object.values(tweet1.metrics).reduce((prev, curr) => prev + curr)
-  )
+  if (ranked === 'true') {
+    // sort tweets by total engagements
+    tweets.sort((tweet1, tweet2) => 
+      Object.values(tweet2.metrics).reduce((prev, curr) => prev + curr) -
+      Object.values(tweet1.metrics).reduce((prev, curr) => prev + curr)
+    )
+  }
 
   res.status(200).json({ tweets: tweets.slice(0, 10) }) 
 }
